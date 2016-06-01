@@ -1,0 +1,10 @@
+"AddonInfo"
+{
+	"name"				"Spacebuild 2 Classic"
+	"version"			"2.0"
+	"up_date"			"June 2, 2016"
+	"author_name"			"TAD2020"
+	"author_email"			""
+	"author_url"			"http://snakesvx.blogdns.com/"
+	"info"				"Spacebuild 2 Addon"
+}
