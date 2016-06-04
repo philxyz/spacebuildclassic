@@ -42,7 +42,7 @@ function SB_BrushEnvironments.GetEnvData(ID)
 end
 
 function SB_BrushEnvironments.SpaceEnt(ent)
-	GAMEMODE:Space_Affect_Shared(ent)
+	SB2:Space_Affect_Shared(ent)
 	
 	ent.IsInBrushEnv = nil
 	ent.planet = nil
@@ -103,7 +103,7 @@ function SB_BrushEnvironments.ApplyEnv(ID, ent)
 			ent.suit.co2 = CO2
 			ent.suit.n = N
 			if planet then
-				ent.suit.temperature = GM:GetTemperature(ply, SunlightTemperture, ShadowTemperture, Sunburn)
+				ent.suit.temperature = SB2:GetTemperature(ply, SunlightTemperture, ShadowTemperture, Sunburn)
 			else
 				ent.suit.temperature = SunlightTemperture
 			end
@@ -116,7 +116,7 @@ function SB_BrushEnvironments.ApplyEnv(ID, ent)
 			ent.environment.co2 = CO2
 			ent.environment.n = N
 			if planet then
-				ent.environment.temperature = GM:GetTemperature(ply, SunlightTemperture, ShadowTemperture, Sunburn)
+				ent.environment.temperature = SB2:GetTemperature(ply, SunlightTemperture, ShadowTemperture, Sunburn)
 			else
 				ent.environment.temperature = SunlightTemperture
 			end

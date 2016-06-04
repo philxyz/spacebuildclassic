@@ -120,7 +120,7 @@ function ENT:PassesTriggerFilters(entity)
 		Msg("Filtering ",entity,"...\n")
 	end
 	
-	if (entity.DontProcessesEnvChanges == true) or (not GM.affected[entity.SB_ClassName or entity:GetClass()]) then
+	if (entity.DontProcessesEnvChanges == true) or (not SB2.affected[entity.SB_ClassName or entity:GetClass()]) then
 		if self.Debugging then
 			Msg("Attempting to pass entity: ",entity,"; This was denied.\n")
 			Msg("The marker for it was set to ", entity.DontProcessesEnvChanges,".\n")

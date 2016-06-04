@@ -4,30 +4,29 @@ function AllowAdminNoclip(ply)
 	return false
 end
 
-
-function GM:PlayerNoClip( pl, on )
+function SB2.PlayerNoClip(pl, on)
 	--no clip allowed in singleplayer, on planets, is turning off noclip, is admin, or SB_PlanetNoClipOnly is off
 	--TODO, allow a little margin away from planet for before disabing noclip so players do get stuck in the walls around the edges of the planets
 	if ( game.SinglePlayer() or (pl.planet or AllowAdminNoclip(pl)) ) then return true end
 	return false
 end
 
-function GM:PlayerSay( ply, txt )
-	self.BaseClass:PlayerSay( ply, txt )
+function SB2.PlayerSay(ply, txt)
+	GAMEMODE.BaseClass:PlayerSay( ply, txt )
 	if not ply:IsAdmin() then return true end
 
 	if (string.sub(txt, 1, 10 ) == "!freespace") then
-		self:RemoveSBProps(false)
+		GAMEMODE:RemoveSBProps(false)
 		return false
 	elseif (string.sub(txt, 1, 10 ) == "!freeworld") then
-		self:RemoveSBProps(true)
+		GAMEMODE:RemoveSBProps(true)
 		return false
 	end
 	return true
 end
 
 function GM:RemoveSBProps(world)
-	for _, class in ipairs( self.affected ) do
+	for _, class in ipairs( SB2.affected ) do
 		local stuff = ents.FindByClass( class )
 		for _, ent in ipairs( stuff ) do
 			if world==true and ent.planet then

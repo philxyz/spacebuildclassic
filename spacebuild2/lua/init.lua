@@ -10,8 +10,10 @@ AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "cl_sun.lua" )
 AddCSLuaFile( "shared.lua" )
 
+print("this file is being parsed")
 -- Include files for use in here
 include( 'shared.lua' )
+include( 'enviro_setup.lua' )
 include( 'environments.lua' )
 include( 'hooks.lua' )
 include( 'volumes.lua' )
@@ -52,22 +54,20 @@ TrueSun = nil
 SunAngle = nil
 SB_DEBUG = false --Turn this off if you don't want to get debug data in console!!
 
-include( 'enviro_setup.lua' )
-
 local Energy_Increment = 5
 local Coolant_Increment = 5
 
-function GM:Think()
+local function SBThink()
 	if (InSpace == 0) then return end
 	if CurTime() < (NextUpdateTime or 0) then return end
-	self:Space_Affect_Players()
+	SB2:Space_Affect_Players()
 	if NextUpdate == 1 then
 		SB_Planet_Quake()
-		for _, class in ipairs( self.affected ) do
+		for _, class in ipairs( SB2.affected ) do
 			local ents = ents.FindByClass( class )
 			for _, ent in ipairs( ents ) do
 				if not ent.IsInBrushEnv then
-					self:Space_Affect_Ent( ent )
+					SB2:Space_Affect_Ent( ent )
 				end
 			end
 		end
@@ -82,7 +82,7 @@ function GM:Think()
 	NextUpdateTime = CurTime() + 0.5
 end
 
-function GM:Space_Affect_Shared( ent, gravity)
+function SB2:Space_Affect_Shared(ent, gravity)
 	local phys = ent:GetPhysicsObject()
 	if not phys:IsValid() then return end
 	if (not gravity) or (gravity == 0) then
@@ -101,7 +101,7 @@ function GM:Space_Affect_Shared( ent, gravity)
 	end	
 end
 
-function GM:GetTemperature(ent, ltemp, stemp, sunburn)
+function SB2:GetTemperature(ent, ltemp, stemp, sunburn)
 	local entpos = ent:GetPos()
 	local temperature = 14
 	local trace = {}
@@ -140,7 +140,7 @@ function GM:GetTemperature(ent, ltemp, stemp, sunburn)
 	return temperature
 end
 
-function GM:GravityCheck(ent)
+function SB2:GravityCheck(ent)
 	local trace = {}
 	local pos = ent:GetPos()
 	trace.start = pos
@@ -158,7 +158,7 @@ function GM:GravityCheck(ent)
 	end
 end
 
-function GM:Space_Affect_Players()
+function SB2:Space_Affect_Players()
 	for _, ply in pairs(player:GetAll()) do
 		if not ply.IsInBrushEnv then 
 			if not ply:Alive() then ply.planet = nil end
@@ -168,7 +168,7 @@ function GM:Space_Affect_Players()
 				local valid, planet, pos , radius, gravity, habitat, air, co2, n, atmosphere, pressure, ltemperature, stemperature, sunburn = SB_Get_Environment_Info(num)
 				if not ply.planet or ply.reset or not (ply.planet == num) then
 					if valid then
-						self:Space_Affect_Shared( ply, gravity)
+						self:Space_Affect_Shared(ply, gravity)
 						ply.planet = num
 						ply.onplanet = planet
 						if ply.suit then
@@ -238,7 +238,7 @@ function GM:Space_Affect_Players()
 	end
 end
 
-function GM:Space_Affect_Ent(ent)
+function SB2:Space_Affect_Ent(ent)
 	if (ent.IsInBrushEnv or
 	not ent:IsValid())
 	or not ent:GetPhysicsObject():IsValid() 
@@ -314,20 +314,21 @@ end
 
 
 -- Initialization functions
+hook.Add("InitPostEntity", "SB2InitPostEntity", function()
+	print("SBInitPostEntity")
+	SB2.Register_Environments()
+	SB2.Register_Sun()
+	SB2:AddSentsToList()
+end)
 
-function GM:InitPostEntity()
-	self:Register_Environments()
-	self:Register_Sun()
-	self:AddSentsToList()
-end
-
-function GM:SB_SentCheck(ply, ent)
+function SB2:SB_SentCheck(ply, ent)
 	if not (ent and ent:IsValid()) then return end
 	local c = ent:GetClass()
-	if table.HasValue(self.affected, c) then return end
-	table.insert(self.affected, c)
+	if table.HasValue(SB2.affected, c) then return end
+	table.insert(SB2.affected, c)
 end
-function GM:SB_Ragdoll(ply)
+
+function SB2:SB_Ragdoll(ply)
 	if ply:GetRagdollEntity() and ply:GetRagdollEntity():IsValid() then
 		ply:GetRagdollEntity():SetGravity(0)
 	else
@@ -336,22 +337,15 @@ function GM:SB_Ragdoll(ply)
 	end
 end
 
--- DPF: Overriding original PlayerSpawn
----------------------------------------------------------
---   Name: gamemode:PlayerSpawn( )
---   Desc: Called when a player spawns
----------------------------------------------------------
-function GM:PlayerSpawn( pl )
-
+local function SBPlayerSpawn(pl)
+	print("SBPlayerSpawn")
 	--
 	-- If the player doesn't have a team in a TeamBased game
 	-- then spawn him as a spectator
 	--
-	if ( self.TeamBased and ( pl:Team() == TEAM_SPECTATOR or pl:Team() == TEAM_UNASSIGNED ) ) then
-
-		self:PlayerSpawnAsSpectator( pl )
+	if ( GAMEMODE.TeamBased and ( pl:Team() == TEAM_SPECTATOR or pl:Team() == TEAM_UNASSIGNED ) ) then
+		GM:PlayerSpawnAsSpectator( pl )
 		return
-	
 	end
 
 	-- Stop observer mode
@@ -365,8 +359,20 @@ function GM:PlayerSpawn( pl )
 	
 	-- Set the player's speed
 	GAMEMODE:SetPlayerSpeed( pl, 250, 500 )
-	
 end
 
-hook.Add( "PlayerSpawnedSENT", "SBSpawnedSent", GM.SB_SentCheck)
-hook.Add("PlayerKilled","SBRagdoll",GM.SB_Ragdoll)
+hook.Add("Initialize", "SBInitialize", function()
+	-- When the gamemode comes up, activate the addon if this is a Spacebuild map
+	-- or if the GM.SPACEBUILD variable is set to a true value
+        if string.lower(game.GetMap()):find('^sb') ~= nil or GM.SPACEBUILD == true then
+                hook.Add("PlayerSpawn", "SBPlayerSpawn", SBPlayerSpawn)
+                hook.Add("Think", "SBThink", SBThink)
+                hook.Add("PlayerSpawnedSENT", "SBSpawnedSent", SB2.SB_SentCheck)
+                hook.Add("PlayerKilled", "SBRagdoll", SB2.SB_Ragdoll)
+		hook.Add("PlayerSay", "SB2PlayerSay", SB2.PlayerSay)
+		hook.Add("PlayerNoClip", "SBPlayerNoClip", SB2.PlayerNoClip)
+
+		GAMEMODE.IsSandboxDerived = true
+		GAMEMODE.IsSpaceBuildDerived = true
+        end
+end)

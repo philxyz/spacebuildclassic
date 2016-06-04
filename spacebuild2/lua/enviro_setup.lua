@@ -1,4 +1,4 @@
-function GM:Register_Sun()
+function SB2.Register_Sun()
 	local suns = ents.FindByClass( "env_sun" )
 
 
@@ -44,7 +44,7 @@ function GM:Register_Sun()
 	end	
 end
 
-function GM:AddSentsToList()
+function SB2:AddSentsToList()
 	local SEntList = scripted_ents.GetList()
 	for _, item in pairs( SEntList ) do
 		local name =  item.t.ClassName
@@ -59,7 +59,7 @@ function GM:AddSentsToList()
 	end
 end
 
-function GM:Register_Environments()
+function SB2.Register_Environments()
 	local Blooms = {}
 	local Colors = {}
 	local Planets = {}

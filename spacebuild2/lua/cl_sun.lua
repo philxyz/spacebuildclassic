@@ -1,6 +1,6 @@
 -- draw sun effects
 local stars = {}
-local function DrawSunEffects( )
+function SB2.DrawSunEffects()
 	-- no pixel shaders? no sun effects!
 	if( not render.SupportsPixelShaders_2_0() ) then return; end
 	-- render each star.
@@ -62,8 +62,6 @@ local function DrawSunEffects( )
 	end
 
 end
-hook.Add( "RenderScreenspaceEffects", "SunEffects", DrawSunEffects );
-
 
 -- receive sun information
 local function recvSun( msg )

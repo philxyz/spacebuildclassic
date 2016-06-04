@@ -136,7 +136,7 @@ local function recPlanet( msg )
 end
 usermessage.Hook( "AddPlanet", recPlanet );
 
-function GM:Space_Affect_Cl ()
+function SB2.Space_Affect_Cl()
 	local ply = LocalPlayer()
 	if not (ply and ply:IsValid() and ply:Alive()) then return end
 	local ppos = ply:GetPos()
@@ -157,9 +157,17 @@ function GM:Space_Affect_Cl ()
 	end
 end
 
-function GM:Think()
-	if (GetGlobalInt("InSpace") == 0) then return end
-	if timer > CurTime() then return end
-	self:Space_Affect_Cl()
-	timer = CurTime() + 0.5
-end
+hook.Add("Initialize", "SBInitialize", function()
+	-- When the gamemode comes up, activate the addon if this is a Spacebuild map
+	-- or if the GM.SPACEBUILD variable is set to a true value
+	if string.lower(game.GetMap()):find('^sb') ~= nil or GM.SPACEBUILD == true then
+		hook.Add("Think", "SBThink", function(g)
+			if (GetGlobalInt("InSpace") == 0) then return end
+			if timer > CurTime() then return end
+			SB2.Space_Affect_Cl()
+			timer = CurTime() + 0.5
+		end)
+		hook.Add("RenderScreenspaceEffects", "VFX_Render", Render)
+		hook.Add("RenderScreenspaceEffects", "SunEffects", SB2.DrawSunEffects)
+	end
+end)

@@ -1,14 +1,10 @@
 -- Space Build Gamemode
+GM = {}
+SB2 = {}
 
-GM.Name 	= "SpaceBuild2"
-GM.Author 	= "LS-RD-SB Team"
-GM.Email 	= ""
-GM.Website 	= "http://gee-linx.ath.cx"
-
-DeriveGamemode("sandbox")
 GM.IsSandboxDerived = true
 GM.IsSpaceBuildDerived = true
-GM.affected = {
+SB2.affected = {
 	"player",
 	"prop_physics",
 	"prop_ragdoll",
