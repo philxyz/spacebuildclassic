@@ -10,7 +10,6 @@ AddCSLuaFile( "cl_init.lua" )
 AddCSLuaFile( "cl_sun.lua" )
 AddCSLuaFile( "shared.lua" )
 
-print("this file is being parsed")
 -- Include files for use in here
 include( 'shared.lua' )
 include( 'enviro_setup.lua' )
@@ -315,7 +314,6 @@ end
 
 -- Initialization functions
 hook.Add("InitPostEntity", "SB2InitPostEntity", function()
-	print("SBInitPostEntity")
 	SB2.Register_Environments()
 	SB2.Register_Sun()
 	SB2:AddSentsToList()
@@ -338,7 +336,6 @@ function SB2:SB_Ragdoll(ply)
 end
 
 local function SBPlayerSpawn(pl)
-	print("SBPlayerSpawn")
 	--
 	-- If the player doesn't have a team in a TeamBased game
 	-- then spawn him as a spectator
@@ -364,7 +361,7 @@ end
 hook.Add("Initialize", "SBInitialize", function()
 	-- When the gamemode comes up, activate the addon if this is a Spacebuild map
 	-- or if the GM.SPACEBUILD variable is set to a true value
-        if string.lower(game.GetMap()):find('^sb') ~= nil or GM.SPACEBUILD == true then
+        if string.lower(game.GetMap()):find('^sb') ~= nil or GAMEMODE.SPACEBUILD == true then
                 hook.Add("PlayerSpawn", "SBPlayerSpawn", SBPlayerSpawn)
                 hook.Add("Think", "SBThink", SBThink)
                 hook.Add("PlayerSpawnedSENT", "SBSpawnedSent", SB2.SB_SentCheck)

@@ -160,7 +160,7 @@ end
 hook.Add("Initialize", "SBInitialize", function()
 	-- When the gamemode comes up, activate the addon if this is a Spacebuild map
 	-- or if the GM.SPACEBUILD variable is set to a true value
-	if string.lower(game.GetMap()):find('^sb') ~= nil or GM.SPACEBUILD == true then
+	if string.lower(game.GetMap()):find('^sb') ~= nil or GAMEMODE.SPACEBUILD == true then
 		hook.Add("Think", "SBThink", function(g)
 			if (GetGlobalInt("InSpace") == 0) then return end
 			if timer > CurTime() then return end
